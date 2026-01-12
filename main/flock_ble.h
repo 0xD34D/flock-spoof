@@ -1,0 +1,75 @@
+#pragma once
+
+#include <stdint.h>
+
+#include "esp_err.h"
+#include "host/ble_uuid.h"
+
+// Device name patterns for BLE advertisement detection
+static const char* device_name_patterns[] = {
+    "FS Ext Battery",  // Flock Safety Extended Battery
+    "Penguin",         // Penguin surveillance devices
+    "Flock",           // Standard Flock Safety devices
+    "Pigvision"        // Pigvision surveillance systems
+};
+
+// Known Flock Safety MAC address prefixes (from real device databases)
+// This is a susbset of the wifi prefixes, due to use of random static
+// addresses for BLE MAC spoofing
+static const uint8_t ble_prefixes[][3] = {
+    // FS Ext Battery devices
+    {0xcc, 0xcc, 0xcc},
+    {0xec, 0x1b, 0xbd},
+    {0x04, 0x0d, 0x84},
+    {0xf0, 0x82, 0xc0},
+    {0x1c, 0x34, 0xf1},
+    {0x38, 0x5b, 0x44},
+
+    // Flock WiFi devices
+    {0x3c, 0x91, 0x80},
+    {0xd8, 0xf3, 0xbc},
+    {0x14, 0x5a, 0xfc},
+    {0x08, 0x3a, 0x88},
+    {0xe4, 0xaa, 0xea},
+};
+
+// ============================================================================
+// RAVEN SURVEILLANCE DEVICE UUID PATTERNS
+// ============================================================================
+static const ble_uuid128_t RAVEN_DEVICE_INFO_UUID =
+    BLE_UUID128_INIT(0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10,
+                     0x00, 0x00, 0x0a, 0x18, 0x00, 0x00);
+static const ble_uuid128_t RAVEN_GPS_UUID =
+    BLE_UUID128_INIT(0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10,
+                     0x00, 0x00, 0x00, 0x31, 0x00, 0x00);
+static const ble_uuid128_t RAVEN_POWER_UUID =
+    BLE_UUID128_INIT(0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10,
+                     0x00, 0x00, 0x00, 0x32, 0x00, 0x00);
+static const ble_uuid128_t RAVEN_NETWORK_UUID =
+    BLE_UUID128_INIT(0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10,
+                     0x00, 0x00, 0x00, 0x33, 0x00, 0x00);
+static const ble_uuid128_t RAVEN_UPLOAD_UUID =
+    BLE_UUID128_INIT(0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10,
+                     0x00, 0x00, 0x00, 0x34, 0x00, 0x00);
+static const ble_uuid128_t RAVEN_ERROR_UUID =
+    BLE_UUID128_INIT(0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10,
+                     0x00, 0x00, 0x00, 0x35, 0x00, 0x00);
+static const ble_uuid128_t RAVEN_OLD_HEALTH_UUID =
+    BLE_UUID128_INIT(0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10,
+                     0x00, 0x00, 0x09, 0x18, 0x00, 0x00);
+static const ble_uuid128_t RAVEN_OLD_LOCATION_UUID =
+    BLE_UUID128_INIT(0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10,
+                     0x00, 0x00, 0x19, 0x18, 0x00, 0x00);
+
+// Known Raven service UUIDs for detection
+static const ble_uuid128_t raven_service_uuids[] = {
+    RAVEN_DEVICE_INFO_UUID, RAVEN_GPS_UUID,          RAVEN_POWER_UUID,
+    RAVEN_NETWORK_UUID,     RAVEN_UPLOAD_UUID,       RAVEN_ERROR_UUID,
+    RAVEN_OLD_HEALTH_UUID,  RAVEN_OLD_LOCATION_UUID,
+};
+
+esp_err_t ble_init(void);
+esp_err_t ble_start_flock_spoof(const uint8_t prefix[],
+                                const ble_uuid128_t* uuid,
+                                const char* device_name);
+esp_err_t ble_stop_flock_spoof(void);
