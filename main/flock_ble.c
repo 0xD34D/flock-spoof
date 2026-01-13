@@ -2,7 +2,6 @@
 
 #include "esp_check.h"
 #include "esp_log.h"
-#include "esp_nimble_hci.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "host/ble_hs.h"
