@@ -15,6 +15,9 @@ static const char* TAG = "flock-spoof";
 
 #define TEST_DURATION_MS 5000
 
+// Set to 1 to run comprehensive tests, 0 for randomized tests
+#define COMPREHENSIVE_TESTS 0
+
 void test_flock_wifi_spoof() {
   ESP_LOGI(TAG, "Testing Flock WiFi Spoofing");
 
@@ -93,6 +96,85 @@ void test_flock_ble_spoof() {
   }
 }
 
+void test_flock_wifi_spoof_random() {
+  ESP_LOGI(TAG, "Testing Flock WiFi Spoofing");
+
+  uint8_t* prefix;
+  char* ssid;
+
+  size_t num_prefixes = sizeof(wifi_prefixes) / sizeof(wifi_prefixes[0]);
+  prefix = wifi_prefixes[esp_random() % num_prefixes];
+
+  size_t num_ssids = sizeof(wifi_ssid_patterns) / sizeof(wifi_ssid_patterns[0]);
+  ssid = (char*)wifi_ssid_patterns[esp_random() % num_ssids];
+
+  uint8_t rand_choice = esp_random() % 3;
+  switch (rand_choice) {
+    case 0:
+      ESP_ERROR_CHECK(wifi_start_flock_spoof(ssid, NULL));
+      break;
+    case 1:
+      ESP_ERROR_CHECK(wifi_start_flock_spoof(NULL, prefix));
+      break;
+    case 2:
+    default:
+      ESP_ERROR_CHECK(wifi_start_flock_spoof(ssid, prefix));
+      break;
+  }
+  vTaskDelay(pdMS_TO_TICKS(TEST_DURATION_MS));
+  ESP_ERROR_CHECK(wifi_stop_flock_spoof());
+}
+
+void test_flock_ble_spoof_random() {
+  ESP_LOGI(TAG, "Testing Flock BLE Spoofing");
+
+  uint8_t* prefix;
+  char* name;
+  const ble_uuid128_t* uuid;
+
+  size_t num_prefixes = sizeof(ble_prefixes) / sizeof(ble_prefixes[0]);
+  prefix = ble_prefixes[esp_random() % num_prefixes];
+
+  size_t num_names =
+      sizeof(device_name_patterns) / sizeof(device_name_patterns[0]);
+  name = (char*)device_name_patterns[esp_random() % num_names];
+
+  size_t num_uuids =
+      sizeof(raven_service_uuids) / sizeof(raven_service_uuids[0]);
+  char uuid_str[37];
+  uuid = &raven_service_uuids[esp_random() % num_uuids];
+  ble_uuid_to_str((ble_uuid_t*)uuid, uuid_str);
+
+  uint8_t rand_choice = esp_random() % 7;
+  switch (rand_choice) {
+    case 0:
+      ESP_ERROR_CHECK(ble_start_flock_spoof(NULL, NULL, name));
+      break;
+    case 1:
+      ESP_ERROR_CHECK(ble_start_flock_spoof(prefix, NULL, NULL));
+      break;
+    case 2:
+      ESP_ERROR_CHECK(ble_start_flock_spoof(NULL, uuid, NULL));
+      break;
+    case 3:
+      ESP_ERROR_CHECK(ble_start_flock_spoof(prefix, uuid, NULL));
+      break;
+    case 4:
+      ESP_ERROR_CHECK(ble_start_flock_spoof(prefix, NULL, name));
+      break;
+    case 5:
+      ESP_ERROR_CHECK(ble_start_flock_spoof(NULL, uuid, name));
+      break;
+    case 6:
+    default:
+      ESP_ERROR_CHECK(ble_start_flock_spoof(prefix, uuid, name));
+      break;
+  }
+
+  vTaskDelay(pdMS_TO_TICKS(TEST_DURATION_MS));
+  ESP_ERROR_CHECK(ble_stop_flock_spoof());
+}
+
 void app_main(void) {
   // Initialize NVS
   esp_err_t ret = nvs_flash_init();
@@ -108,9 +190,12 @@ void app_main(void) {
   ESP_ERROR_CHECK(ble_init());
 
   while (1) {
+#if COMPREHENSIVE_TESTS
     test_flock_wifi_spoof();
-    vTaskDelay(pdMS_TO_TICKS(500));  // delay to allow cleanup
     test_flock_ble_spoof();
-    vTaskDelay(pdMS_TO_TICKS(500));  // delay to allow cleanup
+#else
+    test_flock_wifi_spoof_random();
+    test_flock_ble_spoof_random();
+#endif
   }
 }
