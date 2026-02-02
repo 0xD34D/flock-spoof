@@ -44,7 +44,7 @@ esp_err_t wifi_start_flock_spoof(const char* ssid, const uint8_t mac_prefix[]) {
               .ssid = "flock",
               .ssid_len = 5,
               .ssid_hidden = 0,
-              .password = "FlockYouToo!",
+              .password = "security",
               .authmode = WIFI_AUTH_WPA2_PSK,
               .channel = (esp_random() % 11) + 1,
               .beacon_interval = 100,
