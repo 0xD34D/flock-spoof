@@ -17,17 +17,23 @@ This project demonstrates how to spoof Flock Safety and other surveillance devic
 ## Building
 
 You'll need:
-- ESP32-C3 or compatible ESP32 board
-- ESP-IDF v5.x or later
-- Basic familiarity with ESP-IDF tooling
+- ESP32 board (C3, S3, or compatible variants like C3-Zero, S3-Zero)
+- PlatformIO (VS Code extension or CLI)
+- ESP-IDF v5.x (automatically managed by PlatformIO)
 
 ### Build Steps
 
 ```bash
-idf.py build
-idf.py flash
-idf.py monitor
+pio run
+pio run -t upload
+pio device monitor
 ```
+
+For specific boards, use the environment:
+- ESP32-C3: `pio run -e esp32-c3-devkitm-1`
+- ESP32-S3: `pio run -e esp32-s3-devkitc-1`
+- ESP32-C3-Zero: `pio run -e esp32-c3-zero`
+- ESP32-S3-Zero: `pio run -e esp32-s3-zero`
 
 ## Notes
 

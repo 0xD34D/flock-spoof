@@ -18,6 +18,12 @@
 
 # Build artifacts and directories
 **/build/
+.pio/
+
+# ESP-IDF config files
+sdkconfig
+sdkconfig.*
+!sdkconfig.defaults
 build/
 *.o
 *.a
