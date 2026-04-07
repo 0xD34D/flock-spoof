@@ -4,6 +4,7 @@
 #include "esp_log.h"
 #include "esp_random.h"
 #include "esp_wifi.h"
+#include <string.h>
 
 static const char* TAG = "flock-wifi";
 
